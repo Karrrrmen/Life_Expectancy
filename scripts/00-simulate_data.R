@@ -1,9 +1,8 @@
 #### Preamble ####
-# Purpose: Simulates a dataset of Australian electoral divisions, including the 
-  #state and party that won each division.
-# Author: Rohan Alexander
-# Date: 26 September 2024
-# Contact: rohan.alexander@utoronto.ca
+# Purpose: Simulates a dataset of Life Expectancy
+# Author: Manjun Zhu
+# Date: 16 November 2024
+# Contact: karmen.zhu@utoronto.ca
 # License: MIT
 # Pre-requisites: The `tidyverse` package must be installed
 # Any other information needed? Make sure you are in the `starter_folder` rproj
@@ -11,42 +10,54 @@
 
 #### Workspace setup ####
 library(tidyverse)
-set.seed(853)
+set.seed(955)
 
+# Generate the number of rows for the dataset
+n <- 50
 
-#### Simulate data ####
-# State names
-states <- c(
-  "New South Wales",
-  "Victoria",
-  "Queensland",
-  "South Australia",
-  "Western Australia",
-  "Tasmania",
-  "Northern Territory",
-  "Australian Capital Territory"
+# Simulated data
+# Define countries and their status
+countries <- data.frame(
+  Country = c("USA", "Canada", "Germany", "China", "India",
+              "Brazil", "Nigeria", "South Africa"),
+  Status = c("Developed", "Developed", "Developed", "Developing",
+             "Developing", "Developing", "Developing", "Developing")
 )
 
-# Political parties
-parties <- c("Labor", "Liberal", "Greens", "National", "Other")
-
-# Create a dataset by randomly assigning states and parties to divisions
-analysis_data <- tibble(
-  division = paste("Division", 1:151),  # Add "Division" to make it a character
-  state = sample(
-    states,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.25, 0.25, 0.15, 0.1, 0.1, 0.1, 0.025, 0.025) # Rough state population distribution
-  ),
-  party = sample(
-    parties,
-    size = 151,
-    replace = TRUE,
-    prob = c(0.40, 0.40, 0.05, 0.1, 0.05) # Rough party distribution
-  )
+# Generate simulated data
+data <- data.frame(
+  Country = sample(countries$Country, size = n, replace = TRUE),
+  Year = sample(2009:2015, size = n, replace = TRUE),
+  stringsAsFactors = FALSE
 )
+
+# Assign the corresponding status based on the country
+data <- merge(data, countries, by = "Country")
+
+# Simulate other variables
+data$LifeExpectancy <- round(
+  ifelse(data$Status == "Developed", runif(n, 70, 85), runif(n, 50, 70)), 1
+)
+data$GDP <- round(
+  ifelse(data$Status == "Developed", runif(n, 20000, 80000),
+         runif(n, 1000, 15000)), 2
+)
+data$Diphtheria <- round(
+  ifelse(data$Status == "Developed", runif(n, 90, 100), runif(n, 50, 90)), 1
+)
+data$IncomeComposition <- round(
+  ifelse(data$Status == "Developed", runif(n, 0.7, 1), runif(n, 0.2, 0.7)), 2
+)
+data$BMI <- round(
+  ifelse(data$Status == "Developed", runif(n, 25, 35), runif(n, 15, 25)), 1
+)
+
+# View a sample of the simulated dataset
+head(data)
+
+# Summary of the dataset
+summary(data)
 
 
 #### Save data ####
-write_csv(analysis_data, "data/00-simulated_data/simulated_data.csv")
+write_csv(data, "data/00-simulated_data/simulated_data.csv")
