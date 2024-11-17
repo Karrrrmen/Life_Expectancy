@@ -2,9 +2,8 @@
 title: "My title"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: [https://github.com/RohanAlexander/starter_folder](https://github.com/RohanAlexander/starter_folder)."
+  - Manjun Zhu
+thanks: "Code and data are available at: [https://github.com/Karrrrmen/Life_Expectancy](https://github.com/Karrrrmen/Life_Expectancy)."
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -18,8 +17,13 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+library(dplyr)
 library(tidyverse)
-library(palmerpenguins)
+library(here)
+library(ggplot2)
+
+data <- read.csv(here::here("data/02-analysis_data/analysis_data.csv"))
+
 ```
 
 
@@ -37,9 +41,6 @@ Telegraphing paragraph: The remainder of this paper is structured as follows. @s
 
 
 
-
-
-
 # Data {#sec-data}
 
 ## Overview
@@ -52,27 +53,31 @@ Overview text
 	
 Some paragraphs about how we go from a phenomena in the world to an entry in the dataset.
 
-## Outcome variables
+## Predictor variables
 
 Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
 
 
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+Some of our data is of WHO (@fig-predictor).
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| label: fig-predictor
 #| echo: false
+#| warning: false
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+ggplot(data, aes(x = LifeExpectancy)) +
+  geom_histogram(binwidth = 1, fill = "purple", color = "brown", alpha = 0.7) +
+  facet_wrap(~ Status) +
+  labs(
+    title = "Histogram of Life Expectancy by Status",
+    x = "Life Expectancy",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
 ```
+
 
 Talk more about it.
 
@@ -85,14 +90,7 @@ And also planes (@fig-planes). (You can change the height and width, but don't w
 #| warning: false
 #| message: false
 
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
 ```
 
 Talk way more about it. 
@@ -105,7 +103,15 @@ Use sub-sub-headings for each outcome variable and feel free to combine a few in
 
 
 
+## Cleaned Data
+```{r}
+#Overview, delete later
+# Randomly select 10 rows from the data
+sampled_data <- data |> sample_n(10)
 
+# Display the selected data
+sampled_data
+```
 
 
 
