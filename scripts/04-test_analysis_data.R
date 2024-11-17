@@ -2,7 +2,7 @@
 # Purpose: Performs a series of validation tests on cleaned Life Expectancy Data
 # Author: Manjun Zhu
 # Date: 16 November 2024
-# Contact: karmen.zhu@utoronto.ca
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: The `tidyverse` , `arrow`, and `testthat` packages must be installed.
 # Any other information needed? Make sure you are in the `lifeexpectancydata` rproj
