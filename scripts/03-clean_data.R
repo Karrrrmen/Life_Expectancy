@@ -2,7 +2,7 @@
 # Purpose: Clean the raw data recorded by WHO, removing unnecessary columns, and save it as csv and parquet.
 # Author: Manjun Zhu
 # Date: 16 November 2024
-# Contact: karmen.zhu@utoronto.ca
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: finish raw-data
 
