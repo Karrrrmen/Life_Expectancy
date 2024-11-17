@@ -2,7 +2,7 @@
 # Purpose: Tests the structure and validity of the simulated Life Expectancy
 # Author: Manjun Zhu
 # Date: 16 November 2024
-# Contact: karmen.zhu@utoronto.ca
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: 
   # - The `tidyverse` package must be installed and loaded
