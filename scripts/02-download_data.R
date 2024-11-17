@@ -1,8 +1,8 @@
 #### Preamble ####
 # Purpose: Downloads and saves the data from 'https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who'
 # Author: Manjun Zhu
-# Date: 27 November 2024
-# Contact: karmen.zhu@utoronto.ca
+# Date: 16 November 2024
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: University of Toronto
 # Pre-requisites: No
 # Any other information needed? Thanks to Kaggle opendataset
