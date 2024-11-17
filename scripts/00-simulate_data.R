@@ -2,7 +2,7 @@
 # Purpose: Simulates a dataset of Life Expectancy
 # Author: Manjun Zhu
 # Date: 16 November 2024
-# Contact: karmen.zhu@utoronto.ca
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: The `tidyverse` package must be installed
 # Any other information needed? Make sure you are in the `starter_folder` rproj
