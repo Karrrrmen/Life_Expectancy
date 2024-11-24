@@ -23,20 +23,21 @@ data <- data %>%
     Status = as.factor(Status),
     GDP = as.numeric(GDP),
     Diphtheria = as.numeric(Diphtheria),
-    IncomeComposition = as.numeric(IncomeComposition),
     BMI = as.numeric(BMI),
-    TotalExpenditure = as.numeric(TotalExpenditure)
+    TotalExpenditure = as.numeric(TotalExpenditure),
+    Schooling = as.numeric(Schooling)
   )
 
 ### Model data ####
 # linear model for Developed Countries' Life Expectancy based on socioeconomic factors
-lm_developed <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + IncomeComposition + TotalExpenditure, 
+lm_developed <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + Schooling + TotalExpenditure, 
                    data = data %>% filter(Status == "Developed"))
 
 
 # linear model for Developing Countries' Life Expectancy based on socioeconomic factors
-lm_developing <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + IncomeComposition + TotalExpenditure,
+lm_developing <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + Schooling + TotalExpenditure,
                     data = data %>% filter(Status == "Developing"))
+
 
 #### Save model ####
 saveRDS(lm_developed, here::here("models/lm_developed.rds"))
