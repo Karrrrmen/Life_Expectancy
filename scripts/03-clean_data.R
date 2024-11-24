@@ -15,18 +15,18 @@ data <- read_csv("data/01-raw_data/raw_data.csv")
 
 data <- data %>%
   # Select the desired columns
-  select(Country, Year, Status, Life.expectancy, GDP, 
-         Diphtheria, Income.composition.of.resources, BMI) %>%
+  select(Country, Year, Status, Life.expectancy, GDP, Diphtheria, Income.composition.of.resources, Total.expenditure, BMI) %>%
   # Filter rows where Year is between 2009 and 2015
   filter(Year >= 2009 & Year <= 2015) %>%
   # Remove rows with any missing values
   drop_na()
 
-
 #### Rename column
 colnames(data)[colnames(data) == "Life.expectancy"] <- "LifeExpectancy"
 colnames(data)[colnames(data) == 
-               "Income.composition.of.resources"] <- "IncomeComposition"
+                 "Income.composition.of.resources"] <- "IncomeComposition"
+colnames(data)[colnames(data) == 
+                 "Total.expenditure"] <- "TotalExpenditure"
 
 #### Save data ####
 write_csv(data, "data/02-analysis_data/analysis_data.csv")
