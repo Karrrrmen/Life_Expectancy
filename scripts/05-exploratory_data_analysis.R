@@ -1,37 +1,41 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Perform exploratory data analysis on cleaned data
+# Author: Manjun Zhu
+# Date: 23 November 2024
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: The `tidyverse`, 'janitor', 'here', and 'reshape2' packages
+# must be installed
 
 
-#### Workspace setup ####
+# load libraries
 library(tidyverse)
-library(rstanarm)
+library(janitor)
+library(here)
+library(reshape2)
+library(arrow)
 
-#### Read data ####
-analysis_data <- read_csv("data/analysis_data/analysis_data.csv")
+# read cleaned data
+data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet")) |>
+  clean_names()
 
-### Model data ####
-first_model <-
-  stan_glm(
-    formula = flying_time ~ length + width,
-    data = analysis_data,
-    family = gaussian(),
-    prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
-    prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
-    prior_aux = exponential(rate = 1, autoscale = TRUE),
-    seed = 853
-  )
+# quick overview of data structure
+glimpse(data)
 
+# print first few rows of data
+head(data)
 
-#### Save model ####
-saveRDS(
-  first_model,
-  file = "models/first_model.rds"
-)
+# print last few rows of data
+tail(data)
 
+# randomly sample 6 rows
+data |>
+  slice_sample(n = 6)
 
+# summary of the dataset
+summary(data)
+
+# number of NA values in each column
+missing_data <- data |>
+  summarise(across(everything(), ~ sum(is.na(.))))
+missing_data
