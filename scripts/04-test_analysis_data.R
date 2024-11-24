@@ -15,7 +15,6 @@ library(arrow)
 
 analysis_data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
-
 #### Test data ####
 # Create list for results
 test_results <- list()
@@ -24,16 +23,16 @@ test_results <- list()
 test_results$structure <- test_that("Data structure", {
   expect_true(is.data.frame(analysis_data), 
               info = "analysis_data is not a data frame.")
-  expect_equal(ncol(analysis_data), 8, info = "analysis_data does 
+  expect_equal(ncol(analysis_data), 9, info = "analysis_data does 
                not have the correct number of columns.")
-  expect_equal(nrow(analysis_data), 1069, info = "analysis_data does 
+  expect_equal(nrow(analysis_data), 920, info = "analysis_data does 
                not have the correct number of rows.")
 })
 
 # Test if column names match expected names
 test_results$column_names_test <- test_that("Column names", {
   expected_colnames <- c("Country", "Year", "Status", "LifeExpectancy", "GDP", 
-                         "Diphtheria", "IncomeComposition", "BMI")
+                         "Diphtheria", "IncomeComposition", "TotalExpenditure", "BMI")
   expect_equal(names(analysis_data), expected_colnames, 
                info = "Column names do not match expected names.")
 })
@@ -47,6 +46,8 @@ test_results$na_values_test <- test_that("NA values", {
                info = "Diphtheria contains NA values.")
   expect_false(any(is.na(analysis_data$IncomeComposition)), 
                info = "IncomeComposition contains NA values.")
+  expect_false(any(is.na(analysis_data$TotalExpenditure)), 
+               info = "TotalExpenditure contains NA values.")
   expect_false(any(is.na(analysis_data$BMI)), info = "BMI contains NA values.")
 })
 
