@@ -1,37 +1,43 @@
 #### Preamble ####
-# Purpose: Models... [...UPDATE THIS...]
-# Author: Rohan Alexander [...UPDATE THIS...]
-# Date: 11 February 2023 [...UPDATE THIS...]
-# Contact: rohan.alexander@utoronto.ca [...UPDATE THIS...]
+# Purpose: Run a linear regression model to predict Life Expectancy between Developed and Developing Countries
+# Author: Manjun Zhu
+# Date: 23 November 2024
+# Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
+# Pre-requisites: The `tidyverse` and 'here' packages must be installed
 # Any other information needed? [...UPDATE THIS...]
 
 
 #### Workspace setup ####
 library(tidyverse)
-library(rstanarm)
+library(here)
 
 #### Read data ####
-analysis_data <- read_csv("data/analysis_data/analysis_data.csv")
-
-### Model data ####
-first_model <-
-  stan_glm(
-    formula = flying_time ~ length + width,
-    data = analysis_data,
-    family = gaussian(),
-    prior = normal(location = 0, scale = 2.5, autoscale = TRUE),
-    prior_intercept = normal(location = 0, scale = 2.5, autoscale = TRUE),
-    prior_aux = exponential(rate = 1, autoscale = TRUE),
-    seed = 853
+# convert some columns to the appropriate data types
+data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
+data <- data %>%
+  mutate(
+    Country = as.factor(Country),
+    Year = as.numeric(Year),
+    LifeExpectancy = as.numeric(LifeExpectancy),
+    Status = as.factor(Status),
+    GDP = as.numeric(GDP),
+    Diphtheria = as.numeric(Diphtheria),
+    IncomeComposition = as.numeric(IncomeComposition),
+    BMI = as.numeric(BMI),
+    TotalExpenditure = as.numeric(TotalExpenditure)
   )
 
+### Model data ####
+# linear model for Developed Countries' Life Expectancy based on socioeconomic factors
+lm_developed <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + IncomeComposition + TotalExpenditure, 
+                   data = data %>% filter(Status == "Developed"))
+
+
+# linear model for Developing Countries' Life Expectancy based on socioeconomic factors
+lm_developing <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + IncomeComposition + TotalExpenditure,
+                    data = data %>% filter(Status == "Developing"))
 
 #### Save model ####
-saveRDS(
-  first_model,
-  file = "models/first_model.rds"
-)
-
-
+saveRDS(lm_developed, here::here("models/lm_developed.rds"))
+saveRDS(lm_developing, here::here("models/lm_developing.rds"))
