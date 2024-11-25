@@ -1,11 +1,10 @@
 #### Preamble ####
 # Purpose: Run a linear regression model to predict Life Expectancy between Developed and Developing Countries
 # Author: Manjun Zhu
-# Date: 23 November 2024
+# Date: 24 November 2024
 # Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: The `tidyverse` and 'here' packages must be installed
-# Any other information needed? [...UPDATE THIS...]
 
 
 #### Workspace setup ####
@@ -21,24 +20,25 @@ data <- data %>%
     Year = as.numeric(Year),
     LifeExpectancy = as.numeric(LifeExpectancy),
     Status = as.factor(Status),
-    GDP = as.numeric(GDP),
     Diphtheria = as.numeric(Diphtheria),
     BMI = as.numeric(BMI),
     TotalExpenditure = as.numeric(TotalExpenditure),
-    Schooling = as.numeric(Schooling)
+    Schooling = as.numeric(Schooling),
+    pct_doctor = as.numeric(pct_doctor),
+    pct_nursing = as.numeric(pct_nursing)
   )
 
 ### Model data ####
 # linear model for Developed Countries' Life Expectancy based on socioeconomic factors
-lm_developed <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + Schooling + TotalExpenditure, 
+lm_developed <- lm(LifeExpectancy ~  Diphtheria + Schooling + TotalExpenditure + pct_doctor, 
                    data = data %>% filter(Status == "Developed"))
 
 
 # linear model for Developing Countries' Life Expectancy based on socioeconomic factors
-lm_developing <- lm(LifeExpectancy ~ GDP + BMI + Diphtheria + Schooling + TotalExpenditure,
+lm_developing <- lm(LifeExpectancy ~ BMI + Diphtheria + Schooling + pct_doctor + pct_nursing, 
                     data = data %>% filter(Status == "Developing"))
-
 
 #### Save model ####
 saveRDS(lm_developed, here::here("models/lm_developed.rds"))
 saveRDS(lm_developing, here::here("models/lm_developing.rds"))
+
