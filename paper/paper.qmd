@@ -1,0 +1,518 @@
+---
+title: "What to Expect with Life Expectancy?"
+subtitle: "Examining How Status, Healthcare Expenditure, Education, and Medical Infrastructure Influence Life Expectancy Across Developed and Developing Regions"
+author: 
+  - Manjun Zhu
+thanks: "Code and data are available at: [https://github.com/Karrrrmen/Life_Expectancy](https://github.com/Karrrrmen/Life_Expectancy)."
+date: today
+date-format: long
+abstract: "Life expectancy has seen unprecedented growth in recent decades, driven by advancements in healthcare, improved access to medical services, and reduced child mortality. However, this growth has not been evenly distributed across the globe, with wealthier nations benefiting disproportionately. This research examines the impact of a nation’s economic standing and health conditions on life expectancy, exploring nuanced variables beyond those traditionally studied. By developing a linear model, the analysis identifies key relationships between economic and healthcare indicators and their influence on population longevity. The findings aim to inform health policy and economic planning, providing actionable insights to address disparities and promote equitable growth in life expectancy worldwide."
+format: pdf
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(dplyr)
+library(tidyverse)
+library(here)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(modelsummary)
+library(ggbeeswarm)
+library(ggridges)
+
+data <- read.csv(here::here("data/02-analysis_data/analysis_data.csv"))
+
+```
+
+
+# Introduction
+
+Life expectancy has witnessed remarkable growth over the past century, driven by advancements in healthcare, improved access to medical services, and reduced child mortality rates. However, this progress has not been distributed equitably across the globe. While nations with robust economies and advanced healthcare systems have achieved significant gains, others, particularly in underdeveloped regions, continue to face barriers such as inadequate infrastructure, persistent diseases, and economic instability. Despite existing research on life expectancy determinants, gaps remain in understanding the nuanced relationships between economic standing, healthcare access, and other critical variables.
+
+This study aims to address these gaps by developing a linear model to analyze the impact of a nation’s status, healthcare factors, and economic indicators on life expectancy. The response variable is Life Expectancy, while the predictors include Status (Developed vs. Developing), Diphtheria Immunization Coverage, Government Total Expenditure, Numbers of Doctors and Nurses per 10000, Schooling and BMI. The analysis seeks to quantify the influence of these variables, providing insights into the disparities in life expectancy and identifying factors that contribute to these differences.
+
+Previous studies provide valuable context for this research. One study [@Garon2015] examined the long-term effects of diphtheria on survivors, revealing that paralyzed individuals experience greater reductions in life expectancy, which underscores the importance of healthcare infrastructure in mitigating preventable diseases in underdeveloped regions. Another study extended this understanding by exploring the role of the Human Development Index (HDI), emphasizing the influence of public health initiatives, economic conditions, and education on life expectancy in low and medium-HDI nations [@Girum2018]. Besides that, advanced econometric techniques, including panel cointegration analysis, have demonstrated a positive relationship between health care expenditure per capita and life expectancy, providing a robust foundation for integrating economic variables into this study [@He2020]. Additionally, a finding [@Hanushek2016] underscored the importance of combining both educational investments and government support in improving life expectancy, particularly in developing regions. The strong correlation between education and health suggests that higher levels of education improve overall health, reducing mortality rates and extending life expectancy.
+
+The analysis revealed that life expectancy in developed countries is generally higher and more stable, attributed to stronger healthcare systems, consistent access to medical services, and robust economic stability. These factors are typically supported by well-established public health policies. In contrast, life expectancy in developing countries demonstrates a broader range of variation, though with a noticeable upward trend. This improvement is driven by diverse factors like better healthcare access, economic development, and increasing resource availability, but the inconsistency across regions highlights disparities in infrastructure. The faster growth trajectory in these nations indicates progress, yet challenges remain in achieving stable health outcomes. These findings suggest that policymakers in developing countries should prioritize healthcare system strengthening, resource access, and reducing regional inequalities, while in developed countries, maintaining consistent healthcare access and supporting sustained economic growth should remain priorities.
+
+The remainder of this paper is structured as follows: Section @sec-data discusses the data sources and cleaning methods, followed by an analysis of key predictors in Section @sec-model. Section @sec-results presents the findings from the linear regression model, and Section @sec-discussion explores the implications of these findings, concluding with recommendations for policy interventions and areas for future research.
+
+
+# Data {#sec-data}
+
+## Overview
+
+This study utilizes two primary datasets related to global health and life expectancy. The first dataset, World Health Statistics 2020 Complete, sourced from Kaggle [@world_health_statistics], provides comprehensive global health data, including variables such as GDP, life expectancy, mortality rates, and access to healthcare. The second dataset, Life Expectancy (WHO), also from Kaggle [@life_expectancy_who], focuses specifically on life expectancy trends and factors, offering a detailed breakdown by country, year, and socioeconomic variables.
+
+Together, these datasets enable an in-depth exploration of the relationships between life expectancy and various predictors, such as economic indicators, healthcare access, and immunization coverage. Key variables include Life Expectancy, Status (Developed vs. Developing), Diphtheria Immunization Coverage, Government Health Expenditure as percentage of Total Expenditure, Numbers of Doctors and Nurses per 10000, Schooling and BMI.
+
+We performed data cleaning and analysis using R [@citeR], incorporating a range of packages for efficient data manipulation, visualization, and statistical modeling, leveraging packages such as **`tidyverse`** for data manipulation and visualization [@tidyverse], **`dplyr`** for streamlined data wrangling [@dplyr], **`ggplot2`** for creating high-quality plots [@ggplot2], **`ggridges`** for displaying the distribution of variables across different categories with ridge plots [@ggridges], **`here`** for managing file paths [@here], **`lubridate`** for handling date-related variables [@lubridate], **`kableExtra`** for generating polished tables [@kableExtra], **`modelsummary`** for summarizing model results [@modelsummary].
+
+
+## Measurement
+	
+The measurement process refers to how real-world phenomena—such as healthcare access, economic indicators, or demographic factors—are translated into numerical entries in the dataset. Each entry corresponds to a specific country and year, capturing variables related to life expectancy and associated determinants. Below is a description of key variables in the dataset:
+
+**Life Expectancy (`LifeExpectancy`)**: This is the dependent variable, representing the average number of years a person is expected to live from birth, assuming current mortality rates. The data is reported by international organizations like the World Health Organization (WHO) and is recorded in numeric format as age in years.
+
+**Status (`Status`)**: This categorical variable identifies whether a country is classified as "Developed" or "Developing." The classification is based on economic and social indicators defined by the World Health Organization (WHO) or related agencies.
+
+**Body Mass Index (`BMI`)**: This variable captures the average body mass index of the population, calculated as weight in kilograms divided by the square of height in meters. It is an aggregate measure derived from population health surveys and recorded as a numeric value.
+
+**Health Expenditure (`TotalExpenditure`)**: This represents the general government expenditure on health as a percentage of total government expenditure. It is reported by national governments or international organizations and recorded as a percentage in the dataset.
+
+**Diphtheria Immunization Coverage (`Diphtheria`)**: This variable reflects the percentage of one-year-olds who have received the DTP3 vaccine (diphtheria, tetanus toxoid, and pertussis). Immunization data is typically gathered through health system reports or household surveys and is recorded as a numeric percentage.
+
+**Schooling (`Schooling`)**: This measures the average number of years of schooling for individuals in the population. Data on schooling is sourced from education ministry reports or international databases like UNESCO, and it is recorded in years as a numeric value.
+
+**Medical Doctors (`pct_doctor`)**: This variable represents the number of medical doctors per 10,000 people in the population. It is typically reported by national health ministries or equivalent institutions. The dataset standardizes this figure as a numeric value to facilitate cross-country comparisons.
+
+**Nursing and Midwifery Personnel (`pct_nursing`)**: This measures the number of nursing and midwifery personnel per 10,000 people in the population. It is collected through similar national reporting systems and is recorded as a numeric value.
+
+
+## Data Cleaning
+
+The raw Life Expectancy dataset, along with two supplementary datasets for medical doctors and nursing personnel, underwent several cleaning steps to ensure it was accurate, consistent, and ready for analysis. Initially, the columns in the supplementary datasets were renamed for clarity and compatibility with the main dataset. A left join was then performed to merge information on `pct_doctor` and `pct_nursing` into the main dataset. Subsequently, the data was filtered to include only entries from 2004 to 2015, and rows with missing values were removed to maintain data integrity. Column names were standardized, and data types were adjusted as necessary to ensure compatibility with analytical processes. The cleaned dataset was then saved as a Parquet file for efficient storage and further analysis.
+
+
+## Outcome Variables
+The outcome variable is Life Expectancy. It represents the average number of years a person is expected to live, based on current health conditions and mortality rates. The model aims to understand how various factors, such as healthcare availability, education, and economic status, influence life expectancy across different countries. @fig-response displays the historical data of life expectancy across 195 countries from 2004 to 2015, comparing developed and developing countries. The data reveals distinct trends in life expectancy, with developed countries generally experiencing higher life expectancy compared to their developing counterparts.
+
+```{r}
+#| label: fig-response
+#| fig-cap: "Distribution of life expectancy across different Status groups (Developed vs. Developing), highlighting the distinct patterns in their density. The mode of the density for life expectancy in developed countries tends to be around 81 years with a narrower variance, whereas in developing countries, the mode is approximately 74 years with a wider variance, reflecting disparities in health outcomes."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(x = LifeExpectancy)) +
+  geom_histogram(aes(y = ..density..), 
+                 bins = 70, fill = "brown", color = "white", alpha = 0.7) +
+  geom_density(color = "royalblue", fill = "lightblue", alpha = 0.6) +
+  labs(
+    title = "Distribution of Life Expectancy by Status",
+    x = "Life Expectancy", y = "Density"
+  ) +
+  theme_minimal() +
+  facet_wrap(~Status)
+
+```
+
+
+## Predictor Variables
+
+The predictor variables (or independent variables) are the factors believed to influence life expectancy:
+
+1. **Status (`Status`)**: This variable categorizes countries into "Developed" and "Developing" groups. The development status of a country plays a significant role in determining life expectancy, with developed countries generally having higher life expectancies due to better healthcare, sanitation, and infrastructure, as depicted in @fig-status.
+
+2. **Body Mass Index (`BMI`)**: This variable represents the average Body Mass Index of the entire population in a country. BMI is a widely used health indicator that reflects the prevalence of obesity or underweight populations. Extreme values of BMI can negatively impact life expectancy by contributing to chronic diseases such as diabetes and cardiovascular conditions. The BMI condition is depicted in @fig-bmi.
+
+3. **Diphtheria Immunization Coverage (`Diphtheria`)**: This variable represents the percentage of one-year-olds who have received the Diphtheria, Tetanus, and Pertussis (DTP3) immunization. Immunization coverage(@fig-diphtheria) is an important health indicator, as it reflects the effectiveness of a country's healthcare system in preventing infectious diseases, which in turn affects life expectancy.
+
+4. **Schooling (`Schooling`)**: The number of years of schooling in a country is used as a proxy for education levels. Higher education levels typically correlate with better health outcomes and, consequently, higher life expectancy, as educated individuals are more likely to engage in healthier behaviors and have access to better healthcare. The Educated condition is shown in @fig-schooling.
+
+5. **Medical Doctors (`pct_doctor`)**: This variable indicates the number of medical doctors per 10,000 people (@fig-doctor). Access to healthcare professionals is a key determinant of health outcomes, and a higher number of doctors generally corresponds with better healthcare services and longer life expectancy.
+
+6. **Nursing and Midwifery Personnel (`pct_nursing`)**: Similar to the number of doctors, this variable represents the number of nursing and midwifery personnel per 10,000 population (@fig-nursing). Nurses play a crucial role in delivering healthcare, and higher availability of nursing staff can contribute to improved health outcomes and increased life expectancy.
+
+7. **Health Expenditure (`TotalExpenditure`)**: This variable reflects the general government expenditure on health as a percentage of total government expenditure, as shown in @fig-totalExpenditure. Higher health spending is often associated with better healthcare infrastructure, which can lead to longer life expectancy due to better disease prevention and treatment options.
+
+```{r}
+#| label: fig-status
+#| fig-cap: "Histogram of Status, showing the counts of developed and developing countries in the dataset. There are 305 data points from developed countries and 788 from developing countries."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(x = Status, fill = Status)) +
+  geom_bar(stat = "count") +
+  geom_text(stat = "count", aes(label = ..count..), vjust = 1.5, size = 5) +  # Move text to the bottom
+  labs(x = "Country Status", 
+       y = "Count", 
+       title = "Distribution of Countries by Status (Developed vs Developing)") +
+  scale_fill_manual(values = c("royalblue", "orange")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+```{r}
+#| label: fig-bmi
+#| fig-cap: "Density of BMI by Status, showing a higher concentration of BMI in developed regions around 24, suggesting a potential focus on obesity if the bin width were wider. The distribution for developing regions is fairly evenly distributed, with less concentration in any specific BMI range."
+#| echo: false
+#| warning: false
+#| message: false
+
+data_filtered <- data %>%
+  filter(BMI >= 18.5 & BMI <= 24.9)
+ggplot(data_filtered, aes(x = BMI, fill = Status)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "BMI Condition by Status (Normal Range)",
+    x = "BMI",
+    y = "Density"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("royalblue", "red")) +  # Customize colors for Developed and Developing
+  facet_wrap(~Status)
+
+```
+
+```{r}
+#| label: fig-diphtheria
+#| fig-cap: "The plot shows similar immunization coverage conditions across developed and developing countries, with a noticeable increase in variance for developing countries due to some countries exhibiting low diphtheria immunization rates."
+#| echo: false
+#| warning: false
+#| message: false
+
+# Calculate variance for each Status group
+variance_data <- data %>%
+  group_by(Status) %>%
+  summarise(variance = var(Diphtheria, na.rm = TRUE))
+
+# Plot
+ggplot(data, aes(x = Diphtheria, y = Status, fill = Status)) +
+  geom_density_ridges(alpha = 0.7) +
+  # Add text for Variance on the left side
+  geom_text(data = variance_data, 
+            aes(x = 5, y = Status, label = paste("Variance:", round(variance, 1))),
+            size = 3, 
+            hjust = 0, 
+            color = "brown") +
+  labs(x = "Diphtheria Immunization Coverage (%)", 
+       y = "Country Status", 
+       title = "Distribution of Diphtheria Immunization by Country Status") +
+  scale_fill_manual(values = c("royalblue", "darkorange")) +
+  scale_x_continuous(limits = c(0, 100)) +  # Ensure x-axis is between 0 and 100
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+#| label: fig-schooling
+#| fig-cap: "Violin plot with boxplot for Schooling by Status, highlighting a narrow distribution for developed regions with a higher median of 16 years of schooling. In contrast, developing countries show a wider variance and a relatively lower median of around 12.5 years, indicating significant disparities in educational access and attainment, with developed countries having more consistent and higher levels of education compared to the varied and generally lower levels in developing countries."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(
+  x = Status,
+  y = Schooling,
+  fill = Status
+)) +
+  geom_violin(alpha = 0.5, position = position_dodge(width = 1)) + 
+  geom_boxplot(width = 0.1, color = "white", outlier.shape = NA, position = position_dodge(width = 1)) +
+  labs(
+    x = "Status",
+    y = "Schooling Years",
+    title = "Distribution of Schooling Years by Status"
+  ) +
+  scale_fill_manual(values = c("Developed" = "brown", "Developing" = "darkgreen")) + 
+  # Separate panels for each status
+  facet_wrap(~Status, scales = "free_x") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+#| label: fig-totalExpenditure
+#| fig-cap: "Boxplot for government expenditure on health as a percentage of total expenditure, showing relatively high percentages for developed countries compared to developing countries, highlighting that developed countries' governments typically allocate more resources to health, though there are exceptions."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(x = Status, y = TotalExpenditure, fill = Status)) +
+  # Adding boxplots on top of violin plots for more detail on median and quartiles
+  geom_boxplot(width = 0.5, alpha = 0.7, position = position_dodge(0.9)) +
+
+  labs(
+    title = "Total Government Health Expenditure by Status",
+    x = "Country Status",
+    y = "Total Government Expenditure on Health (%)"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("skyblue", "orange")) +  # Customize colors for Developed and Developing
+  theme(legend.position = "none")  # Hide the legend for clarity
+
+```
+
+
+```{r}
+#| label: fig-doctor
+#| fig-cap: "Density plot for doctors per 10,000 population by Status, showing that the density of medical doctors in developed regions is relatively higher compared to developing regions. In developing countries, the density is concentrated at lower levels, suggesting that the healthcare system is generally stronger and more accessible in developed countries."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(x = pct_doctor, y = Status, fill = Status)) +
+  geom_density_ridges(alpha = 0.7) +
+  labs(x = "Density of Medical Doctor", y = "Country Status", title = "Medical Doctor Condition") +
+  scale_fill_manual(values = c("royalblue", "darkorange")) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+```
+
+
+```{r}
+#| label: fig-nursing
+#| fig-cap: "Number of Nurses by Status with Highlighted Mean and Dotplot. The mean for developed countries is around 80, while the mean for developing countries is around 35, with many data points showing low nurse density in developing countries. Both status groups have medians lower than their means, suggesting a right-skewed distribution with a concentration of countries with fewer nurses."
+#| echo: false
+#| warning: false
+#| message: false
+
+ggplot(data, aes(x = Status, y = pct_nursing, fill = Status)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = NA) +  # Boxplot for the distribution
+  geom_dotplot(binaxis = "y", stackdir = "center", dotsize = 0.5, alpha = 0.4, position = "dodge") +  # Smaller dots with dodge position
+  stat_summary(fun = "mean", geom = "point", shape = 18, size = 4, color = "black", fill = "yellow") +  # Highlight the mean
+  labs(
+    title = "Number of Nurses by Status with Highlighted Mean and Dotplot",
+    x = "Status",
+    y = "Number of Nurses per 10000"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("brown", "darkgreen")) +  # Customize fill colors
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Tilt x-axis labels
+
+```
+\newpage
+
+# Model {#sec-model}
+
+The goal of our modelling strategy is twofold. Firstly,...
+
+Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+
+## Model set-up
+
+Define $y_i$ as the Life Expectancy for country $i$. The factors $x_1$, $x_2$,...
+represent socioeconomic predictors such as BMI, Diphtheria, Schooling, TotalExpenditure, pct_doctor, and pct_nursing.
+
+```{=tex}
+\begin{align*} 
+\text{LifeExpectancy}_{\text{developed}} = &\ \beta_0 + \beta_1 \text{Diphtheria Immunization} + \beta_2 \text{Schooling} + \\
+&\ \beta_3 \text{Health Expenditure} + \beta_4 \text{Number of Doctors per 10000} + \epsilon_i
+\end{align*}
+
+\begin{align*} 
+\text{LifeExpectancy}_{\text{developing}} = &\ \beta_0 + \beta_1 \text{BMI} + \beta_2 \text{Diphtheria Immunization} + \\
+&\ \beta_3 \text{Schooling} + \beta_4 \text{Number of Doctors per 10000} + \\
+&\ \beta_5 \text{Number of Nurses per 10000} + \epsilon_i
+\end{align*}
+```
+
+
+## Model Justification
+
+The models were built using linear regression (LM), which is appropriate for predicting life expectancy as a continuous variable. This method captures the relationship between predictors and the response variable with interpretable coefficients. For the Developed model, predictors such as Diphtheria Immunization, Schooling, Total Expenditure, and the number of Doctors per 10,000 were selected as they are widely recognized to influence life expectancy in high-income countries. In the Developing model, we added BMI, Schooling, and both Doctors and Nurses per 10,000, reflecting healthcare access and lifestyle factors relevant to developing nations. Linear regression was chosen because it is effective for normally distributed continuous outcomes, which aligns with our dataset.
+
+## Model Weaknesses and Limitations
+
+Linear regression assumes that the residuals errors of the model are normally distributed. If this assumption is violated, it could lead to biased estimates and incorrect conclusions. This issue is especially important in cross-country data, where life expectancy may be influenced by diverse factors that do not follow a normal distribution.
+
+Predictors such as the number of doctors per 10,000 and the number of nurses per 10,000 might be correlated with each other. High correlation between predictors can cause multicollinearity, making it difficult to assess the individual contribution of each predictor.
+
+## Model Validation
+
+The models for both Developed and Developing countries were implemented using R, with applying out-of-sample testing, the data was randomly split into training and test sets, with 80% used for training the model and 20% reserved for testing. This allows us to assess how well the model performs on data that was not used during training. The Root Mean Square Error (RMSE) was calculated for each model to evaluate the performance and generalization to unseen data. A lower RMSE indicates better predictive performance.
+
+In @tbl-keyestimates, the Developed model is more efficient and better fitted primarily due to its higher R² (64.5% vs 51.5%), indicating that it explains a greater proportion of variance in life expectancy. Additionally, its RMSE value is lower (3.78 vs 5.06), showing more precise predictions. The Developing model has a larger sample size and variability, which might have diluted the effect of individual predictors. The better fit of the Developed model is partly due to the smaller, more homogeneous sample, allowing it to provide more reliable estimates with fewer outliers.
+
+### Model for Developed Countries
+
+For the Developed model, the predictors considered included Diphtheria Immunization, Schooling, Total Expenditure, and Number of Doctors per 10000. The coefficients and standard errors for these predictors were as follows:
+
+**Diphtheria Immunization**: Coefficient = 0.022, Standard Error = 0.025
+
+**Schooling**: Coefficient = 0.801, Standard Error = 0.151
+
+**Health Expenditure**: Coefficient = 0.056, Standard Error = 0.084
+
+**Number of Medical Doctors per 10000**: Coefficient = 0.018, Standard Error = 0.034
+
+These coefficients indicate that `Schooling` has the highest contribution to explaining life expectancy, followed by `Diphtheria Immunization`. The relatively small contribution of `#Doctors per 10000` suggests that doctor practices may have a less direct impact on life expectancy in developed countries, but this could be nuanced by other health factors not captured in the model.
+
+### Model for Developing Countries
+
+For the Developing model, the same predictors were considered, but their relationships with life expectancy differed. The coefficients and standard errors for each predictor were as follows:
+
+**BMI**: Coefficient = 0.040, Standard Error = 0.012
+
+**Diphtheria Immunization**: Coefficient = 0.036, Standard Error = 0.010
+
+**Schooling**: Coefficient = 1.727, Standard Error = 0.113
+
+**Number of Medical Doctors per 10000**: Coefficient = 0.090, Standard Error = 0.021
+
+**Number of Nurses per 10000**: Coefficient = -0.003, Standard Error = 0.003
+
+In the Developing model, `Schooling` again has the most significant impact, and `#Doctors per 10000` is also a substantial predictor. This highlights the importance of healthcare workforce availability in improving life expectancy in developing countries, unlike the developed context where Schooling was more prominent. The negative relationship of `Total Expenditure` suggests that in developing countries, spending in certain healthcare sectors could be misallocated or inefficient.
+```{r}
+#| label: tbl-keyestimates
+#| tbl-cap: "Summary of key model estimates for Developed and Developing counties, including coefficients for predictors like BMI, Diphtheria, Schooling, and TotalExpenditure, pct_doctor, pct_nursing, with standard errors for each estimate. Model performance statistics, such as sample size, R², and adjusted R², are also displayed."
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# load data and model
+lm_developed <- readRDS(here::here("models/lm_developed.rds"))
+lm_developing <- readRDS(here::here("models/lm_developing.rds"))
+
+model_list <- list("Model for Developed" = lm_developed, "Model for Developing" = lm_developing)
+modelsummary(model_list, 
+             output = "kableExtra", 
+             statistic = "std.error", 
+             coef_map = c("BMI" = "BMI", 
+                          "Diphtheria" = "Diphtheria Immunization",
+                          "Schooling" = "Schooling",
+                          "TotalExpenditure" = "Health Expenditure",
+                          "pct_doctor" = "Number of Medical Doctors per 10000",
+                          "pct_nursing" = "Number of Nurses per 10000")) %>%
+  kable_styling(latex_options = c("striped", "scale_down"))
+```
+
+
+\newpage
+
+
+# Results {#sec-results}
+
+```{r}
+#| echo: false
+#| label: tbl-modelresults
+#| tbl-cap: "The prediction table indicates that the average life expectancy in developed countries is 77.23 years, while in developing countries, it is slightly lower at 72.1 years. This difference of approximately 5.1 years in life expectancy suggests a significant health and infrastructure disparity between developed and developing countries. These results align with broader global trends where developed countries typically benefit from better healthcare systems, higher standards of living, and advanced medical technology, contributing to longer life expectancies. "
+#| eval: true
+#| warning: false
+#| message: false
+
+# load data and model
+data <- read.csv(here::here("data/02-analysis_data/analysis_data.csv"))
+lm_developed <- readRDS(here::here("models/lm_developed.rds"))
+lm_developing <- readRDS(here::here("models/lm_developing.rds"))
+
+# make predictions
+data <- data %>%
+  mutate(
+    PredictedDeveloped = predict(lm_developed, newdata = data),
+    PredictedDeveloping = predict(lm_developing, newdata = data)
+  )
+
+# median and average predictions
+results <- data %>%
+  summarise(
+    AverageDeveloped = mean(PredictedDeveloped, na.rm = TRUE),
+    AverageDeveloping = mean(PredictedDeveloping, na.rm = TRUE)
+  )
+
+# display avg percent and normalized percent
+results %>%
+  select(AverageDeveloped, AverageDeveloping) %>%
+  kable(
+    col.names = c("Average Life Expectancy in Developed Countries", "Average Life Expectancy in Developing Countries"),
+    digits = 2,
+    booktabs = TRUE
+  ) %>%
+  kable_styling(
+    latex_options = c("striped", "scale_down")
+  )
+```
+
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: fig-resultsplot
+#| fig-cap: "The prediction plots demonstrate that life expectancy in developed countries tends to remain higher with less variance, indicating stability in health outcomes due to better healthcare systems, more consistent access to medical services, and overall economic stability with less variance. In contrast, the life expectancy in developing countries exhibits a broader range of variation, with a more rapid growth trajectory. This suggests that while life expectancy is increasing in these countries, it is influenced by a variety of factors such as improvements in healthcare, economic development, and access to resources, all of which vary more significantly across different regions."
+#| warning: false
+#| message: false
+
+data <- read.csv(here::here("data/02-analysis_data/analysis_data.csv"))
+lm_developed <- readRDS(here::here("models/lm_developed.rds"))
+lm_developing <- readRDS(here::here("models/lm_developing.rds"))
+
+# Make predictions
+data <- data %>%
+  mutate(
+    PredictedDeveloped = predict(lm_developed, newdata = data),
+    PredictedDeveloping = predict(lm_developing, newdata = data)
+  )
+
+# Reshape data for plotting
+plot_data <- data %>%
+  select(Year, PredictedDeveloped, PredictedDeveloping) %>%
+  pivot_longer(
+    cols = c(PredictedDeveloped, PredictedDeveloping),
+    names_to = "Status",
+    values_to = "PredictedLifeExpectancy"
+  ) %>%
+  mutate(Status = case_when(
+    Status == "PredictedDeveloped" ~ "Developed",
+    Status == "PredictedDeveloping" ~ "Developing"
+  ))
+
+ggplot(plot_data, aes(x = Year, y = PredictedLifeExpectancy, color = Status)) +
+  geom_smooth(method = "loess", se = TRUE, size = 1) +
+  labs(
+    title = "Predicted Life Expectancy Over Time",
+    x = "Year",
+    y = "Predicted Life Expectancy (Years)",
+    color = "Status"
+  ) +
+  scale_color_manual(values = c("Developed" = "brown", "Developing" = "darkgreen")) +
+  theme_minimal() +
+  theme(
+    text = element_text(size = 12),
+    legend.position = "top"
+  )
+
+```
+\newpage
+
+# Discussion {#sec-discussion}
+
+## First discussion point {#sec-first-point}
+
+If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+
+## Second discussion point
+
+Please don't use these as sub-heading labels - change them to be what your point actually is.
+
+## Third discussion point
+
+## Weaknesses and next steps
+
+Weaknesses and next steps should also be included.
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+
+# Additional data details
+
+# Model details {#sec-model-details}
+
+## Posterior predictive check
+
+
+## Diagnostics
+
+
+
+
+\newpage
+
+
+# References
