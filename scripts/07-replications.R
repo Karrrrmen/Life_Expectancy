@@ -6,7 +6,6 @@
 # License: MIT
 # Pre-requisites: The `tidyverse`, `caret`, and 'here' packages must be installed
 
-
 #### Workspace setup ####
 library(tidyverse)
 library(caret)
@@ -49,4 +48,3 @@ rmse <- sqrt(mean((predicted - test_data$LifeExpectancy)^2))
 
 # Print RMSE value
 cat("Root Mean Squared Error (RMSE) on the test data: ", round(rmse, 2), "\n")
-
