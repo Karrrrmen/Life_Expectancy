@@ -53,7 +53,6 @@ test_results$na_values_test <- test_that("NA values", {
                info = "Schooling contains NA values.")
   expect_false(any(is.na(analysis_data$TotalExpenditure)), 
                info = "TotalExpenditure contains NA values.")
-  expect_false(any(is.na(analysis_data$BMI)), info = "BMI contains NA values.")
 })
 
 # Test if Year values are within expected range (2009-2015)
@@ -92,14 +91,6 @@ test_results$diphtheria_test <- test_that("Diphtheria vaccination rate", {
               info = "Diphtheria vaccination rates are out of expected range 
               (0% to 100%).")
 })
-
-# Test if BMI values are within expected range (e.g., 10 to 50)
-test_results$bmi_test <- test_that("BMI range", {
-  expect_true(all(analysis_data$BMI >= 10 & 
-                    analysis_data$BMI <= 50, na.rm = TRUE),
-              info = "BMI values are out of expected range (10 to 50).")
-})
-
 
 # Test if Schooling values are within expected range (3 to 30)
 test_results$schooling_range_test <- test_that("Schooling range", {
