@@ -10,6 +10,10 @@
 
 #### Workspace setup ####
 library(tidyverse)
+library(here)
+library(lubridate)
+
+# set seed
 set.seed(955)
 
 # Generate the number of rows for the dataset
@@ -64,3 +68,4 @@ data <- data(500)
 
 #### Save data ####
 write_csv(data, "data/00-simulated_data/simulated_data.csv")
+write_parquet(data, "data/00-simulated_data/simulated_data.parquet")
