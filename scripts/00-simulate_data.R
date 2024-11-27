@@ -1,7 +1,7 @@
 #### Preamble ####
 # Purpose: Simulates a dataset of Life Expectancy
 # Author: Manjun Zhu
-# Date: 16 November 2024
+# Date: 27 November 2024
 # Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
 # Pre-requisites: The `tidyverse` package must be installed
@@ -13,50 +13,53 @@ library(tidyverse)
 set.seed(955)
 
 # Generate the number of rows for the dataset
-n <- 50
+n <- 500
 
 # Simulated data
 # Define countries and their status
-countries <- data.frame(
-  Country = c("USA", "Canada", "Germany", "China", "India",
-              "Brazil", "Nigeria", "South Africa"),
-  Status = c("Developed", "Developed", "Developed", "Developing",
-             "Developing", "Developing", "Developing", "Developing")
-)
+data <- function(n) {
+  country_names <- c("Australia", "Canada", "Germany", "Japan", "United States", 
+                     "Brazil", "India", "South Africa", "China", "Russia", 
+                     "France", "Italy", "United Kingdom", "South Korea", "Mexico", 
+                     "Argentina", "Spain", "Saudi Arabia", "Egypt", "Turkey", 
+                     "Nigeria", "Indonesia", "Malaysia", "Thailand", "Vietnam", 
+                     "Chile", "Poland", "Israel", "Pakistan", "Singapore", "Netherlands")
+  
+  # Randomly sample countries from the list
+  Country <- sample(country_names, n, replace = TRUE)
+  
+  # Randomly generate the data for each variable based on the summary statistics provided
+  Year <- sample(2004:2015, n, replace = TRUE)
+  
+  # Status (Developed/Developing) based on region or income classification
+  Status <- sample(c("Developed", "Developing"), n, replace = TRUE, prob = c(0.5, 0.5))
+  
+  # LifeExpectancy simulated around a mean of 72.24 with some variation
+  LifeExpectancy <- rnorm(n, mean = 72.24, sd = 10)
+  
+  # Diphtheria immunization rates between 4 and 99
+  Diphtheria <- runif(n, min = 4, max = 99)
+  
+  # TotalExpenditure between 1.12 and 14.39
+  TotalExpenditure <- runif(n, min = 1.12, max = 14.39)
+  
+  # Schooling years between 3.1 and 20.4
+  Schooling <- runif(n, min = 3.1, max = 20.4)
+  
+  # pct_doctor between 0.13 and 75.67
+  pct_doctor <- runif(n, min = 0.13, max = 75.67)
+  
+  # pct_nursing between 0.58 and 174.30
+  pct_nursing <- runif(n, min = 0.58, max = 174.30)
+  
+  # Combine into a data frame
+  data <- data.frame(Country, Year, Status, LifeExpectancy, Diphtheria, 
+                     TotalExpenditure, Schooling, pct_doctor, pct_nursing)
+  
+}
 
-# Generate simulated data
-data <- data.frame(
-  Country = sample(countries$Country, size = n, replace = TRUE),
-  Year = sample(2009:2015, size = n, replace = TRUE),
-  stringsAsFactors = FALSE
-)
-
-# Assign the corresponding status based on the country
-data <- merge(data, countries, by = "Country")
-
-# Simulate other variables
-data$LifeExpectancy <- round(
-  ifelse(data$Status == "Developed", runif(n, 70, 85), runif(n, 50, 70)), 1
-)
-data$GDP <- round(
-  ifelse(data$Status == "Developed", runif(n, 20000, 80000),
-         runif(n, 1000, 15000)), 2
-)
-data$Diphtheria <- round(
-  ifelse(data$Status == "Developed", runif(n, 90, 100), runif(n, 50, 90)), 1
-)
-data$IncomeComposition <- round(
-  ifelse(data$Status == "Developed", runif(n, 0.7, 1), runif(n, 0.2, 0.7)), 2
-)
-data$BMI <- round(
-  ifelse(data$Status == "Developed", runif(n, 25, 35), runif(n, 15, 25)), 1
-)
-
-# View a sample of the simulated dataset
-head(data)
-
-# Summary of the dataset
-summary(data)
+# Generate data for 500 rows
+data <- data(500)
 
 
 #### Save data ####
