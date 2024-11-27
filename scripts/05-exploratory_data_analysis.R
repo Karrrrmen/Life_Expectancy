@@ -21,7 +21,6 @@ summary_stats <- data %>%
     LifeExpectancy = mean(LifeExpectancy, na.rm = TRUE),
     Diphtheria = mean(Diphtheria, na.rm = TRUE),
     TotalExpenditure = mean(TotalExpenditure, na.rm = TRUE),
-    BMI = mean(BMI, na.rm = TRUE),
     Status = mean(as.numeric(Status), na.rm = TRUE),
     Schooling = mean(Schooling, na.rm = TRUE),
     pct_doctor = mean(pct_doctor, na.rm = TRUE),
