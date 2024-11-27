@@ -67,5 +67,4 @@ data <- data(500)
 
 
 #### Save data ####
-write_csv(data, "data/00-simulated_data/simulated_data.csv")
 write_parquet(data, "data/00-simulated_data/simulated_data.parquet")
