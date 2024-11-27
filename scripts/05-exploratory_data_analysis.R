@@ -1,39 +1,42 @@
 #### Preamble ####
-# Purpose: Perform exploratory data analysis on cleaned data
+# Purpose: This script performs exploratory data analysis (EDA) on the cleaned life expectancy data
 # Author: Manjun Zhu
-# Date: 23 November 2024
+# Date: 26 November 2024
 # Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: The `tidyverse`, 'janitor', 'here', and 'reshape2' packages
-# must be installed
+# Pre-requisites: The 'tidyverse', 'here', and 'lubridate' packages must be installed
 
 
 # load libraries
 library(tidyverse)
-library(janitor)
 library(here)
-library(reshape2)
-library(arrow)
+library(lubridate)
 
 # read cleaned data
-data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet")) |>
-  clean_names()
+data <- read_parquet(here::here("data/02-analysis_data/analysis_data.parquet"))
 
-# quick overview of data structure
-glimpse(data)
+# Summary of numerical variables
+summary_stats <- data %>%
+  summarise(
+    LifeExpectancy = mean(LifeExpectancy, na.rm = TRUE),
+    Diphtheria = mean(Diphtheria, na.rm = TRUE),
+    TotalExpenditure = mean(TotalExpenditure, na.rm = TRUE),
+    BMI = mean(BMI, na.rm = TRUE),
+    Status = mean(as.numeric(Status), na.rm = TRUE),
+    Schooling = mean(Schooling, na.rm = TRUE),
+    pct_doctor = mean(pct_doctor, na.rm = TRUE),
+    pct_nursing = mean(pct_nursing, na.rm = TRUE),
+  )
 
-# print first few rows of data
-head(data)
+print(summary_stats)
 
-# print last few rows of data
-tail(data)
 
-# randomly sample 6 rows
-data |>
-  slice_sample(n = 6)
+# Status breakdown
+status_distribution <- data %>%
+  count(Status) %>%
+  mutate(percent = n / sum(n) * 100)
 
-# summary of the dataset
-summary(data)
+print(status_distribution)
 
 # number of NA values in each column
 missing_data <- data |>
