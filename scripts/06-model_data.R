@@ -1,10 +1,10 @@
 #### Preamble ####
-# Purpose: Run a linear regression model to predict Life Expectancy between Developed and Developing Countries
+# Purpose: This script performs out-of-sample testing and calculates the RMSE for the linear model trained in the previous script.
 # Author: Manjun Zhu
-# Date: 24 November 2024
+# Date: 26 November 2024
 # Contact: karmen.zhu@mail.utoronto.ca
 # License: MIT
-# Pre-requisites: The `tidyverse` and 'here' packages must be installed
+# Pre-requisites: The `tidyverse`, `caret`, and 'here' packages must be installed
 
 
 #### Workspace setup ####
@@ -21,7 +21,6 @@ data <- data %>%
     LifeExpectancy = as.numeric(LifeExpectancy),
     Status = as.factor(Status),
     Diphtheria = as.numeric(Diphtheria),
-    BMI = as.numeric(BMI),
     TotalExpenditure = as.numeric(TotalExpenditure),
     Schooling = as.numeric(Schooling),
     pct_doctor = as.numeric(pct_doctor),
@@ -30,12 +29,12 @@ data <- data %>%
 
 ### Model data ####
 # linear model for Developed Countries' Life Expectancy based on socioeconomic factors
-lm_developed <- lm(LifeExpectancy ~  Diphtheria + Schooling + TotalExpenditure + pct_doctor, 
+lm_developed <- lm(LifeExpectancy ~  Diphtheria + Schooling + TotalExpenditure * pct_doctor * pct_nursing, 
                    data = data %>% filter(Status == "Developed"))
 
 
 # linear model for Developing Countries' Life Expectancy based on socioeconomic factors
-lm_developing <- lm(LifeExpectancy ~ BMI + Diphtheria + Schooling + pct_doctor + pct_nursing, 
+lm_developing <- lm(LifeExpectancy ~ Diphtheria + Schooling + TotalExpenditure * pct_doctor * pct_nursing, 
                     data = data %>% filter(Status == "Developing"))
 
 #### Save model ####
