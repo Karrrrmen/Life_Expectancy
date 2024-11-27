@@ -16,7 +16,7 @@ data <- read_csv("data/01-raw_data/raw_data.csv")
 analysis_data <- data %>%
   # Select the desired columns
   select(Country, Year, Status, Life.expectancy, Diphtheria, 
-         Total.expenditure, BMI, Schooling, pct_doctor, pct_nursing) %>%
+         Total.expenditure, Schooling, pct_doctor, pct_nursing) %>%
   # Filter rows where Year is between 2009 and 2015, and drop the unrealistic value
   filter(Year >= 2004 & Year <= 2015) %>%
   filter(pct_doctor >= 0 & pct_doctor <= 1500) %>%
