@@ -30,5 +30,4 @@ colnames(analysis_data)[colnames(analysis_data) ==
                  "Total.expenditure"] <- "TotalExpenditure"
 
 #### Save data ####
-write_csv(analysis_data, "data/02-analysis_data/analysis_data.csv")
 write_parquet(analysis_data, "data/02-analysis_data/analysis_data.parquet")
